@@ -41,7 +41,15 @@ export default {
             // Logic to navigate to the profile
         },
         navigate(page) {
-            // Logic to navigate to different pages
+            if (page === 'home') {
+                this.$router.push({ name: 'Home' });
+            }
+            else if (page === 'about') {
+                this.$router.push({ name: 'LoginRegister' });
+            } 
+            else {
+                // Logic to navigate to other pages
+            }
         }
     }
 }
