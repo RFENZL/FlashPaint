@@ -5,13 +5,16 @@
                 <svg-icon type="mdi" :path="pathHome"></svg-icon>
                 <p> Accueil </p>
             </button>
-            <button class="navs-btn" @click="navigate('about')">
+            <button class="navs-btn" @click="navigate('search')">
                 <svg-icon type="mdi" :path="pathSearch"></svg-icon>
                 <p> Recherche </p>
             </button>
-            <button class="navs-btn" @click="navigate('contact')">
+            <button class="navs-btn" @click="navigate('personnalSpace')">
                 <svg-icon type="mdi" :path="pathCalendar"></svg-icon>
                 <p> Mon Espace </p>
+            </button>
+            <button class="navs-btn" @click="navigate('loginRegister')">
+                <p> Login-Register </p>
             </button>
         </nav>
         <button class="profile-btn" @click="goToProfile">
@@ -38,17 +41,21 @@ export default {
     },
     methods: {
         goToProfile() {
-            // Logic to navigate to the profile
+            this.$router.push({ name: 'Profile' });
         },
         navigate(page) {
             if (page === 'home') {
                 this.$router.push({ name: 'Home' });
             }
-            else if (page === 'about') {
+            else if (page === 'loginRegister') {
                 this.$router.push({ name: 'LoginRegister' });
             } 
-            else {
-                // Logic to navigate to other pages
+            else if (page === 'search') {
+                this.$router.push({ name: 'Search' });
+            }
+            else if (page === 'personnalSpace') {
+                this.$router.push({ name: 'Planning' });
+                
             }
         }
     }

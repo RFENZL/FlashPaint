@@ -22,6 +22,13 @@
                 <label for="confirmPassword">Confirmation de mot de passe</label>
                 <input type="password" id="confirmPassword" v-model="confirmPassword" required />
             </div>
+            <div class="form-group">
+                <label for="role">Rôle</label>
+                <select id="role" v-model="role" required>
+                    <option value="client">Client</option>
+                    <option value="artiste">Artiste</option>
+                </select>
+            </div>
             <button type="submit">S'inscrire</button>
         </form>
     </div>
@@ -80,6 +87,14 @@ input {
     border-radius: 5px;
 }
 
+select {
+    width: 100%;
+    padding: 0.5em;
+    box-sizing: border-box;
+    border: 1px solid #575656;
+    border-radius: 5px;
+}
+
 button {
     width: 100%;
     padding: 0.5em;
@@ -87,7 +102,6 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    border-radius: 5%;
 }
 
 button:hover {

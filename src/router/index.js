@@ -20,6 +20,26 @@ const routes = [
     path: '/LoginRegister',
     name: 'LoginRegister',
     component: () => import('@/views/LoginRegister.vue'),
+  },
+  {
+    path: '/Search',
+    name: 'Search',
+    component: () => import('@/views/Search.vue'),
+  },
+  {
+    path: '/Planning',
+    name: 'Planning',
+    component: () => import('@/views/PersonnalSpace.vue'),
+  },
+  {
+    path: '/Profile',
+    name: 'Profile',
+    component: () => import('@/views/Profile.vue'),
+  },
+  {
+    path: '/AdminPanel',
+    name: 'AdminPanel',
+    component: () => import('@/views/AdminPanel.vue'),
   }
 ]
 
