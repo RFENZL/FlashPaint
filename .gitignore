@@ -1,6 +1,7 @@
 .DS_Store
 node_modules
 /dist
+Api\flashpaint-2d1f5-firebase-adminsdk-aafcj-d71b0ecbfa.json
 
 # local env files
 .env.local
