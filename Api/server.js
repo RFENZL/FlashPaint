@@ -1,5 +1,4 @@
 const fastify = require('fastify')({ logger: true });
-const db = require('./firebase');
 const { registerUser } = require('./userRoute/register.js');
 const { getAllUsers } = require('./userRoute/users.js');
 const { loginUser } = require('./userRoute/login.js');
@@ -11,20 +10,54 @@ const { getAllCanvas } = require('./canvasRoute/canvas.js');
 const { deleteCanvas } = require('./canvasRoute/deleteCanvas.js');
 const { getGallery } = require('./galleryRoute/gallery.js');
 const { updateGallery } = require('./galleryRoute/updateGallery.js');
+const { searchItems } = require('./searchRoute/searchItems.js');
 
+fastify.register(require('@fastify/jwt'), { secret: 'aL3n$uQ%F7&vJd8$kjw!cVbLZ#2pTr1@9' });
+fastify.register(require('@fastify/rate-limit'), {
+  timeWindow: '1 minute'
+});
+fastify.register(require('@fastify/cors'), { 
+  origin: ['http://tonfrontend.com'], 
+});
 
+// Middleware d'authentification
+fastify.decorate('authenticate', async (request, reply) => {
+  try {
+    await request.jwtVerify();
+  } catch (err) {
+    reply.status(401).send({ error: 'Non autorisé, jeton manquant ou invalide' });
+  }
+});
+
+// Route pour se connecter (publique)
+fastify.post('/login', async (request, reply) => {
+  const { email, password } = request.body;
+
+  try {
+    const result = await loginUser(email, password);
+    const token = fastify.jwt.sign({ userId: result.userId, email: result.email });
+    reply.send({ token });
+  } catch (error) {
+    console.error('Erreur lors de la connexion de l\'utilisateur :', error);
+    reply.status(404).send({ error: error.message });
+  }
+});
+
+// Route pour l'enregistrement (publique)
 fastify.post('/register', async (request, reply) => {
-    const { userId, firstName, lastName, userType } = request.body;
-  
-    try {
-      const result = await registerUser(userId, firstName, lastName, userType);
-      reply.send(result);
-    } catch (error) {
-      reply.status(400).send({ error: error.message });
-    }
-  });
+  const { firstName, lastName, userType, email, password } = request.body;
 
-fastify.get('/users', async (request, reply) => {
+  try {
+    const result = await registerUser(firstName, lastName, userType, email, password);
+    reply.send(result);
+  } catch (error) {
+    console.error('Erreur lors de l\'enregistrement de l\'utilisateur :', error);
+    reply.status(500).send({ error: 'Erreur lors de l\'enregistrement de l\'utilisateur' });
+  }
+});
+
+// Routes sécurisées avec pré-handlers
+fastify.get('/users', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   try {
     const users = await getAllUsers();
     reply.send(users);
@@ -34,42 +67,19 @@ fastify.get('/users', async (request, reply) => {
   }
 });
 
-fastify.post('/login', async (request, reply) => {
-  const { userId } = request.body;
-
-  try {
-    const result = await loginUser(userId);
-    reply.send(result);
-  } catch (error) {
-    console.error('Erreur lors de la connexion de l\'utilisateur :', error);
-    if (error.message === 'Le champ userId est requis.') {
-      reply.status(400).send({ error: error.message });
-    } else {
-      reply.status(404).send({ error: error.message });
-    }
-  }
-});
-
-fastify.get('/profil', async (request, reply) => {
+fastify.get('/profil', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { id } = request.query;
-
+  
   try {
     const user = await getUserProfile(id);
     reply.send({ user });
   } catch (error) {
     console.error('Erreur lors de la récupération du profil utilisateur :', error);
-    if (error.message === 'Le paramètre id est requis.') {
-      reply.status(400).send({ error: error.message });
-    } else if (error.message === 'Utilisateur non trouvé.') {
-      reply.status(404).send({ error: error.message });
-    } else {
-      reply.status(500).send({ error: 'Erreur lors de la récupération du profil utilisateur' });
-    }
+    reply.status(500).send({ error: 'Erreur lors de la récupération du profil utilisateur' });
   }
 });
 
-
-fastify.put('/updateUser', async (request, reply) => {
+fastify.put('/updateUser', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { id } = request.query;
   const { firstName, lastName, userType, requesterId } = request.body;
 
@@ -79,20 +89,11 @@ fastify.put('/updateUser', async (request, reply) => {
     reply.send(result);
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil utilisateur :', error);
-
-    if (error.message.includes('requis')) {
-      reply.status(400).send({ error: error.message });
-    } else if (error.message.includes('Accès interdit')) {
-      reply.status(403).send({ error: error.message });
-    } else if (error.message.includes('Utilisateur non trouvé')) {
-      reply.status(404).send({ error: error.message });
-    } else {
-      reply.status(500).send({ error: 'Erreur lors de la mise à jour du profil utilisateur' });
-    }
+    reply.status(500).send({ error: 'Erreur lors de la mise à jour du profil utilisateur' });
   }
 });
 
-fastify.post('/deleteUser', async (request, reply) => {
+fastify.post('/deleteUser', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { id } = request.query;
   const { delete: deleteConfirmation } = request.body;
 
@@ -100,19 +101,12 @@ fastify.post('/deleteUser', async (request, reply) => {
     const result = await deleteUser(id, deleteConfirmation);
     reply.send(result);
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de l\'attribut delete à l\'utilisateur :', error);
-
-    if (error.message.includes('requis')) {
-      reply.status(400).send({ error: error.message });
-    } else if (error.message.includes('Utilisateur non trouvé')) {
-      reply.status(404).send({ error: error.message });
-    } else {
-      reply.status(500).send({ error: 'Erreur lors de l\'ajout de l\'attribut delete à l\'utilisateur' });
-    }
+    console.error('Erreur lors de la suppression de l\'utilisateur :', error);
+    reply.status(500).send({ error: 'Erreur lors de la suppression de l\'utilisateur' });
   }
 });
 
-fastify.post('/newCanvas', async (request, reply) => {
+fastify.post('/newCanvas', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { canvasId, artistId, type, tags, status } = request.body;
 
   try {
@@ -120,16 +114,11 @@ fastify.post('/newCanvas', async (request, reply) => {
     reply.send(result);
   } catch (error) {
     console.error('Erreur lors de la création du Canvas :', error);
-
-    if (error.message.includes('Tous les champs sont requis')) {
-      reply.status(400).send({ error: error.message });
-    } else {
-      reply.status(500).send({ error: 'Erreur lors de la création du Canvas' });
-    }
+    reply.status(500).send({ error: 'Erreur lors de la création du Canvas' });
   }
 });
 
-fastify.get('/canvas', async (request, reply) => {
+fastify.get('/canvas', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   try {
     const result = await getAllCanvas();
     reply.send(result);
@@ -139,8 +128,7 @@ fastify.get('/canvas', async (request, reply) => {
   }
 });
 
-
-fastify.delete('/deleteCanvas', async (request, reply) => {
+fastify.delete('/deleteCanvas', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { canvasId } = request.query;
   const { delete: deleteConfirmation } = request.body;
 
@@ -148,18 +136,12 @@ fastify.delete('/deleteCanvas', async (request, reply) => {
     const result = await deleteCanvas(canvasId, deleteConfirmation);
     reply.send(result);
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de l\'attribut delete au canvas :', error);
-
-    if (error.message.includes('non trouvé')) {
-      reply.status(404).send({ error: error.message });
-    } else if (error.message.includes('requis')) {
-      reply.status(400).send({ error: error.message });
-    } else {
-      reply.status(500).send({ error: 'Erreur lors de l\'ajout de l\'attribut delete au canvas' });
-    }
+    console.error('Erreur lors de la suppression du Canvas :', error);
+    reply.status(500).send({ error: 'Erreur lors de la suppression du Canvas' });
   }
 });
-fastify.get('/gallery', async (request, reply) => {
+
+fastify.get('/gallery', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { id } = request.query;
   try {
     const gallery = await getGallery(id);
@@ -170,8 +152,7 @@ fastify.get('/gallery', async (request, reply) => {
   }
 });
 
-
-fastify.put('/updateGallery', async (request, reply) => {
+fastify.put('/updateGallery', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { userId } = request.query;
   const { requesterId, newGallery } = request.body;
 
@@ -184,7 +165,29 @@ fastify.put('/updateGallery', async (request, reply) => {
   }
 });
 
+fastify.get('/search', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  const { type, tags, artist, status } = request.query;
 
+  try {
+    const filters = {
+      type,
+      artist,
+      status,
+      tags: Array.isArray(tags) ? tags : tags ? [tags] : null 
+    };
+
+    console.log('Filtres reçus:', filters);
+
+    const results = await searchItems(filters);
+
+    reply.send(results);
+  } catch (error) {
+    console.error('Erreur lors de la recherche :', error);
+    reply.status(500).send({ error: 'Erreur lors de la recherche' });
+  }
+});
+
+// Démarrer le serveur
 const start = async () => {
   try {
     await fastify.listen({ port: 3000 });
@@ -193,5 +196,5 @@ const start = async () => {
     fastify.log.error(err);
     process.exit(1);
   }
-}
+};
 start();

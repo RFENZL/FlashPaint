@@ -1,4 +1,4 @@
-const db = require('./firebase');
+const db = require('../firebase');
 
 // Fonction pour récupérer tous les canvas
 async function getAllCanvas() {
