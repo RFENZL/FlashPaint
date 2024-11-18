@@ -56,7 +56,7 @@ export default {
                 email: this.email,
                 password: this.password,
                 confirmPassword: this.confirmPassword,
-                role: this.role
+                userType: this.role
             };
             if (!validateRegisterForm(formData)) {
                 return alert('Veuillez remplir correctement le formulaire');
@@ -74,11 +74,11 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Inscription réussie');
-                        // Redirect or clear form if needed
+                        console.log('Inscription réussie');
                     } else {
-                        alert('Erreur lors de l\'inscription: ' + data.message);
+                        console.log('Erreur lors de l\'inscription: ' + data.message);
                     }
+                    this.$router.push('/');
                 })
                 .catch(error => {
                     console.error('Error:', error);

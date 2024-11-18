@@ -27,10 +27,36 @@ export default {
     },
     methods: {
         handleSubmit() {
-            console.log('Email:', this.email);
-            console.log('Password:', this.password);
+            const formData = {
+                email: this.email,
+                password: this.password
+            };
 
-            validateLoginForm(this.email, this.password);
+            if (!validateLoginForm(formData)) {
+                return;
+            } else {
+                fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Connexion réussie');
+                    } else {
+                        console.log('Erreur lors de la connexion: ' + data.message);
+                    }
+                    localStorage.setItem('token', data.token);
+                    this.$router.push('/');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Une erreur est survenue. Veuillez réessayer plus tard.');
+                });
+            }
         }
     }
 };

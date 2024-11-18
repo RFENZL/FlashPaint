@@ -17,7 +17,7 @@ fastify.register(require('@fastify/rate-limit'), {
   timeWindow: '1 minute'
 });
 fastify.register(require('@fastify/cors'), { 
-  origin: ['http://tonfrontend.com'], 
+  origin: ['http://localhost:3001'], 
 });
 
 // Middleware d'authentification
@@ -35,7 +35,7 @@ fastify.post('/login', async (request, reply) => {
 
   try {
     const result = await loginUser(email, password);
-    const token = fastify.jwt.sign({ userId: result.userId, email: result.email });
+    const token = fastify.jwt.sign({ email: result.email, password : result.password });
     reply.send({ token });
   } catch (error) {
     console.error('Erreur lors de la connexion de l\'utilisateur :', error);

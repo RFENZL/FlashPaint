@@ -1,5 +1,4 @@
 import { validateEmail, validatePassword } from './regexChecks';
-import axios from 'axios';
 
 export function validateLoginForm(formData) {
     const { email, password } = formData;
@@ -8,22 +7,14 @@ export function validateLoginForm(formData) {
         return { valid: false, message: 'All fields are required.' };
     }
 
-    if (!validateEmail(email)) {
-        return { valid: false, message: 'Invalid email format.' };
-    }
-
-    if (!validatePassword(password)) {
-        return { valid: false, message: 'Invalid password format.' };
-    }
-
     return { valid: true, message: 'Login form is valid.' };
 }
 
 export async function validateRegisterForm(formData) {
     console.log('validateRegisterForm', formData);
-    const { firstName, lastName, email, password, confirmPassword, role } = formData;
+    const { firstName, lastName, email, password, confirmPassword, userType } = formData;
 
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !role) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !userType) {
         return { valid: false, message: 'All fields are required.' };
     }
 

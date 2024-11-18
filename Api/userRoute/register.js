@@ -31,7 +31,7 @@ async function registerUser(firstName, lastName, userType,email,password) {
     password
   });
 
-  return { id: newUserId, message: 'Utilisateur ajouté avec succès' };
+  return { id: newUserId, success : true,  message: 'Utilisateur ajouté avec succès' };
 }
 
 module.exports = { registerUser };
