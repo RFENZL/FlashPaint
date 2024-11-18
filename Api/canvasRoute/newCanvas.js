@@ -1,4 +1,4 @@
-const db = require('./firebase'); // Importez votre configuration firebase
+const db = require('../firebase'); // Importez votre configuration firebase
 
 // Fonction pour créer un nouveau canvas
 async function createCanvas(canvasId, artistId, type, tags, status) {

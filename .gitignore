@@ -2,6 +2,7 @@
 node_modules
 /dist
 Api/flashpaint-2d1f5-firebase-adminsdk-aafcj-d71b0ecbfa.json
+Api/flashpaint-2d1f5-firebase-adminsdk-aafcj-628986b058.json
 
 # local env files
 .env.local

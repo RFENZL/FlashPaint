@@ -1,5 +1,4 @@
 const fastify = require('fastify')({ logger: true });
-const db = require('./firebase');
 const { registerUser } = require('./userRoute/register.js');
 const { getAllUsers } = require('./userRoute/users.js');
 const { loginUser } = require('./userRoute/login.js');
@@ -14,10 +13,10 @@ const { updateGallery } = require('./galleryRoute/updateGallery.js');
 
 
 fastify.post('/register', async (request, reply) => {
-    const { userId, firstName, lastName, userType } = request.body;
+    const { firstName, lastName, userType, email, password } = request.body;
   
     try {
-      const result = await registerUser(userId, firstName, lastName, userType);
+      const result = await registerUser(firstName, lastName, userType, email, password);
       reply.send(result);
     } catch (error) {
       reply.status(400).send({ error: error.message });

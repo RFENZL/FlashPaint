@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { validateRegisterForm } from '../utils/validations';
+
 export default {
     data() {
         return {
@@ -42,17 +44,48 @@ export default {
             lastName: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            role: ''
         };
     },
     methods: {
         register() {
-            // Logic for registering a new user
-            if (this.password !== this.confirmPassword) {
-                alert("Les mots de passe ne correspondent pas");
-                return;
+            const formData = {
+                firstName: this.firstName,
+                lastName: this.lastName,
+                email: this.email,
+                password: this.password,
+                confirmPassword: this.confirmPassword,
+                role: this.role
+            };
+            if (!validateRegisterForm(formData)) {
+                return alert('Veuillez remplir correctement le formulaire');
+            } else {
+                delete formData.confirmPassword;
+                console.log(JSON.stringify(formData));
+                fetch('http://localhost:3000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Inscription réussie');
+                        // Redirect or clear form if needed
+                    } else {
+                        alert('Erreur lors de l\'inscription: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Une erreur est survenue. Veuillez réessayer plus tard.');
+                });
             }
-            // Further registration logic here
+
         }
     }
 };

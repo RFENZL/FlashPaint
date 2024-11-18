@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { validateLoginForm } from '@/utils/validations';
+
 export default {
     data() {
         return {
@@ -25,9 +27,10 @@ export default {
     },
     methods: {
         handleSubmit() {
-            // Handle login logic here
             console.log('Email:', this.email);
             console.log('Password:', this.password);
+
+            validateLoginForm(this.email, this.password);
         }
     }
 };
