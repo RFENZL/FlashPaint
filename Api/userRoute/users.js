@@ -1,4 +1,3 @@
-const fastify = require('fastify')({ logger: true });
 const db = require('../firebase');
 
 async function getAllUsers() {

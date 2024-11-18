@@ -1,6 +1,6 @@
 const db = require('../firebase');
 
-async function registerUser(firstName, lastName, userType, email, password) {
+async function registerUser(firstName, lastName, userType,email,password) {
   if (!firstName || !lastName || !userType || !email || !password) {
     throw new Error('Tous les champs sont requis : firstName, lastName, userType.');
   }
