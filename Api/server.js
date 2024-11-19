@@ -11,6 +11,9 @@ const { deleteCanvas } = require('./canvasRoute/deleteCanvas.js');
 const { getGallery } = require('./galleryRoute/gallery.js');
 const { updateGallery } = require('./galleryRoute/updateGallery.js');
 const { searchItems } = require('./searchRoute/searchItems.js');
+const path = require('path');
+const fs = require('fs');
+fastify.register(require('@fastify/multipart'));
 
 fastify.register(require('@fastify/jwt'), { secret: 'aL3n$uQ%F7&vJd8$kjw!cVbLZ#2pTr1@9' });
 fastify.register(require('@fastify/rate-limit'), {
@@ -20,7 +23,6 @@ fastify.register(require('@fastify/cors'), {
   origin: ['http://localhost:3001'], 
 });
 
-// Middleware d'authentification
 fastify.decorate('authenticate', async (request, reply) => {
   try {
     await request.jwtVerify();
@@ -29,7 +31,6 @@ fastify.decorate('authenticate', async (request, reply) => {
   }
 });
 
-// Route pour se connecter (publique)
 fastify.post('/login', async (request, reply) => {
   const { email, password } = request.body;
 
@@ -44,7 +45,6 @@ fastify.post('/login', async (request, reply) => {
   }
 });
 
-// Route pour l'enregistrement (publique)
 fastify.post('/register', async (request, reply) => {
     const { firstName, lastName, userType, email, password } = request.body;
   
@@ -56,7 +56,6 @@ fastify.post('/register', async (request, reply) => {
     }
   });
 
-// Routes sécurisées avec pré-handlers
 fastify.get('/users', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   try {
     const users = await getAllUsers();
@@ -106,17 +105,42 @@ fastify.post('/deleteUser', { preHandler: [fastify.authenticate] }, async (reque
   }
 });
 
+
+
 fastify.post('/newCanvas', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { canvasId, artistId, type, tags, status } = request.body;
 
+  
+  const data = await request.file();  
+  if (!data) {
+    return reply.status(400).send({ error: 'Aucune image téléchargée.' });
+  }
+
+  const filename = Date.now() + path.extname(data.filename); 
+  const filePath = path.join(__dirname, '/assets/Tableau', filename); 
+
   try {
-    const result = await createCanvas(canvasId, artistId, type, tags, status);
-    reply.send(result);
+
+    const fileStream = fs.createWriteStream(filePath);
+    data.file.pipe(fileStream);
+
+    fileStream.on('finish', async () => {
+      const url = `/assets/Tableau/${filename}`; 
+
+      try {
+        const result = await createCanvas(canvasId, artistId, type, tags, status, url);
+        reply.send(result);
+      } catch (error) {
+        console.error('Erreur lors de la création du Canvas :', error);
+        reply.status(500).send({ error: 'Erreur lors de la création du Canvas' });
+      }
+    });
   } catch (error) {
-    console.error('Erreur lors de la création du Canvas :', error);
-    reply.status(500).send({ error: 'Erreur lors de la création du Canvas' });
+    console.error('Erreur lors de l\'upload de l\'image :', error);
+    reply.status(500).send({ error: 'Erreur lors de l\'upload de l\'image' });
   }
 });
+
 
 fastify.get('/canvas', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   try {
@@ -187,7 +211,6 @@ fastify.get('/search', { preHandler: [fastify.authenticate] }, async (request, r
   }
 });
 
-// Démarrer le serveur
 const start = async () => {
   try {
     await fastify.listen({ port: 3000 });
