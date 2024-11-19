@@ -80,11 +80,11 @@ fastify.get('/profil', { preHandler: [fastify.authenticate] }, async (request, r
 
 fastify.put('/updateUser', { preHandler: [fastify.authenticate] }, async (request, reply) => {
   const { id } = request.query;
-  const { firstName, lastName, userType, requesterId } = request.body;
+  const { firstName, lastName, userType,email,password, } = request.body;
 
   try {
-    const updates = { firstName, lastName, userType };
-    const result = await updateUserProfile(id, requesterId, updates);
+    const updates = { firstName, lastName, userType,email,password };
+    const result = await updateUserProfile(id,  updates);
     reply.send(result);
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil utilisateur :', error);
