@@ -14,7 +14,7 @@ const { searchItems } = require('./searchRoute/searchItems.js');
 
 fastify.register(require('@fastify/jwt'), { secret: 'aL3n$uQ%F7&vJd8$kjw!cVbLZ#2pTr1@9' });
 fastify.register(require('@fastify/rate-limit'), {
-  timeWindow: '1 minute'
+  timeWindow: '1 hour',
 });
 fastify.register(require('@fastify/cors'), { 
   origin: ['http://localhost:3001'], 
@@ -36,7 +36,8 @@ fastify.post('/login', async (request, reply) => {
   try {
     const result = await loginUser(email, password);
     const token = fastify.jwt.sign({ email: result.email, password : result.password });
-    reply.send({ token });
+    const userId = result.user.userId;
+    reply.send({ token, userId});
   } catch (error) {
     console.error('Erreur lors de la connexion de l\'utilisateur :', error);
     reply.status(404).send({ error: error.message });

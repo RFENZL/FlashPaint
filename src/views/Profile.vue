@@ -13,11 +13,11 @@
                 <p><strong>Email:</strong></p>
                 <p><strong>Rôle:</strong></p>
             </div>
-            <div class="user-info-tail">
-                <p>{{ lastName }}</p>
-                <p>{{ firstName }}</p>
-                <p>{{ email }}</p>
-                <p>{{ userType }}</p>
+            <div class="user-info-tail" v-if="profilData">
+                <p>{{ profilData.firstName }}</p>
+                <p>{{ profilData.lastName }}</p>
+                <p>{{ profilData.email }}</p>
+                <p>{{ profilData.userType }}</p>
             </div>
         </div>
     </div>
@@ -28,16 +28,36 @@
 
 <script setup>
     import Header from '../components/Header.vue'
+    import { ref, onMounted } from 'vue'
 
-    const firstName = 'John';
-    const lastName = 'Doe';
-    const email = 'John.Doe@hotmail.com';
-    const userType = 'Client';
+    let profilData = ref(null)
+    let isAdmin = false
+    let isOwnProfile = false
 
-    const isAdmin = true;
-    const isOwnProfile = true;
+    onMounted(async () => {
+    const token = localStorage.getItem('token')
+    const userId = localStorage.getItem('user')
+    const url = `http://localhost:3000/profil?id=${userId}`
 
+    try {
+        const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+        })
+        const data = await response.json()
+        profilData.value = data.user.user
 
+        isAdmin = profilData.value.userType === 'admin'
+        isOwnProfile = data.user.id === userId
+
+    } catch (error) {
+        console.error('Error:', error)
+        alert('Une erreur est survenue. Veuillez réessayer plus tard.')
+    }
+    })
 </script>
 
 <style scoped>

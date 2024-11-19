@@ -62,13 +62,11 @@ export default {
                 return alert('Veuillez remplir correctement le formulaire');
             } else {
                 delete formData.confirmPassword;
-                console.log(JSON.stringify(formData));
                 fetch('http://localhost:3000/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    
                     body: JSON.stringify(formData)
                 })
                 .then(response => response.json())

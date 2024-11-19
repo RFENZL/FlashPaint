@@ -44,12 +44,8 @@ export default {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        console.log('Connexion réussie');
-                    } else {
-                        console.log('Erreur lors de la connexion: ' + data.message);
-                    }
                     localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', data.userId);
                     this.$router.push('/');
                 })
                 .catch(error => {

@@ -12,7 +12,7 @@ async function getUserProfile(id) {
       throw new Error('Utilisateur non trouvé.');
     }
   
-    return user;
+    return ({id, user});
   }
   
   // Exporter la fonction
