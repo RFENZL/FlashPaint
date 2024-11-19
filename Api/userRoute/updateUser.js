@@ -1,7 +1,7 @@
 const db = require('../firebase');
 
-async function updateUserProfile(id, requesterId, updates) {
-    if (!id || !requesterId) {
+async function updateUserProfile(id, updates) {
+    if (!id ) {
       throw new Error('Les paramètres id et requesterId sont requis.');
     }
   
@@ -13,7 +13,7 @@ async function updateUserProfile(id, requesterId, updates) {
     }
   
     // Vérifier si l'utilisateur est Admin ou s'il met à jour son propre profil
-    if (user.userType !== 'Admin' && id !== requesterId) {
+    if (user.userType !== 'Admin' && !id ) {
       throw new Error('Accès interdit. Seul l\'administrateur ou l\'utilisateur concerné peut modifier ce profil.');
     }
   

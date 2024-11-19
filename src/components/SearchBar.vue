@@ -1,61 +1,89 @@
 <template>
     <div class="search-bar">
-        <button @click="onFilters">
-            <svg-icon type="mdi" :path="pathFilter"></svg-icon>
-            <p> Filtres </p> 
-        </button>
-        <input type="text" v-model="query" @keyup.enter="onSearch" placeholder="Rechercher un artiste">
-        <button @click="onSearch">
-            <svg-icon type="mdi" :path="pathSearch"></svg-icon>
-            <p> Rechercher </p>  
-        </button>
+      <!-- Bouton pour ouvrir les filtres -->
+      <!-- <button @click="togglePopup">
+        <svg-icon type="mdi" :path="pathFilter" />
+        <p>Filtres</p>
+      </button> -->
+  
+      <!-- Champ de recherche -->
+      <input 
+        type="text" 
+        v-model="query" 
+        @input="onSearch"  
+        placeholder="Rechercher un artiste"
+      />
+  
+      <!-- Bouton pour effectuer la recherche -->
+      <button @click="onSearch">
+        <svg-icon type="mdi" :path="pathSearch" />
+        <p>Rechercher</p>
+      </button>
+  
+      <!-- Popup SlidingFilter -->
+      <SlidingFilter 
+        :isVisible="isPopupVisible" 
+        @close="togglePopup" 
+        @filter="onFilterApply" 
+      />
     </div>
-</template>
-
-<script>
-import SvgIcon from '@jamescoyle/vue-icon'
-import { mdiMagnify, mdiFilter} from '@mdi/js'
-
-export default {
+  </template>
+  
+  <script>
+  import SvgIcon from '@jamescoyle/vue-icon';
+  import { mdiMagnify, mdiFilter } from '@mdi/js';
+  import SlidingFilter from '../components/Filter.vue'; // Assurez-vous que le chemin est correct
+  
+  export default {
     name: 'SearchBar',
     components: {
-        SvgIcon
+      SvgIcon,
+      SlidingFilter,
     },
     data() {
-        return {
-            query: '',
-            pathSearch: mdiMagnify,
-            pathFilter: mdiFilter
-        };
+      return {
+        query: '', // Valeur de la recherche
+        pathSearch: mdiMagnify, // Icône de recherche
+        pathFilter: mdiFilter, // Icône de filtre
+        isPopupVisible: false, // Contrôle la visibilité du popup
+      };
     },
     methods: {
-        onSearch() {
-            this.$emit('search', this.query);
-        },
-        onFilters() {
-            this.$emit('filters');
-        }
-    }
-};
-</script>
-
-<style scoped>
-.search-bar {
+      // Méthode appelée lors de l'input de recherche
+      onSearch() {
+        this.$emit('search', this.query); // Émettre l'événement avec la valeur de la recherche
+      },
+  
+      // Toggle la visibilité du popup
+      togglePopup() {
+        this.isPopupVisible = !this.isPopupVisible;
+      },
+  
+      // Gestion des filtres appliqués depuis le popup
+      onFilterApply(filterData) {
+        console.log('Filtres appliqués:', filterData);
+        this.$emit('filters', filterData);
+      },
+    },
+  };
+  </script>
+  
+  <style scoped>
+  .search-bar {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 20px;
-
-}
-
-.search-bar input {
+  }
+  
+  .search-bar input {
     width: 100%;
     max-width: 60%;
     border: 1px solid #ccc;
     padding: 10px;
-}
-
-.search-bar button {
+  }
+  
+  .search-bar button {
     background-color: #007bff;
     color: white;
     border: none;
@@ -65,7 +93,11 @@ export default {
     margin-right: 15px;
     display: flex;
     justify-content: center;
-    align-items: space-around;
-}
-
-</style>
+    align-items: center;
+  }
+  
+  .search-bar button p {
+    margin: 0 5px;
+  }
+  </style>
+  
