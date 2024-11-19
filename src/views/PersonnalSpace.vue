@@ -39,32 +39,42 @@ const appointments = ref([])
 let sortedAppointments = ref([])
 const isClient = ref(true)
 
-onMounted(async () => {
-  appointments.value = [
-    { id: 1, artistName: 'Marc Dutronc',  date: '2023-10-01', status: 'Validé' },
-    { id: 2, artistName: 'Picasso', date: '2023-10-02', status: 'En attente' },
-    { id: 3, artistName: 'Jean Marc', date: '2023-10-03', status: 'Validé' },
-    { id: 4, artistName: 'Van Gogh',  date: '2023-10-04', status: 'Refusé' },
-    { id: 1, artistName: 'Marc Dutronc',  date: '2023-10-01', status: 'Terminé' },
-    { id: 2, artistName: 'Picasso', date: '2023-10-02', status: 'En attente' },
-    { id: 3, artistName: 'Jean Marc', date: '2023-10-03', status: 'Validé' },
-    { id: 4, artistName: 'Van Gogh',  date: '2023-10-04', status: 'Refusé' },
-    { id: 1, artistName: 'Marc Dutronc',  date: '2023-10-01', status: 'Validé' },
-    { id: 2, artistName: 'Picasso', date: '2023-10-02', status: 'En attente' },
-    { id: 3, artistName: 'Jean Marc', date: '2023-10-03', status: 'Terminé' },
-    { id: 4, artistName: 'Van Gogh',  date: '2023-10-04', status: 'Refusé' },
-    { id: 1, artistName: 'Marc Dutronc',  date: '2023-10-01', status: 'Validé' },
-    { id: 2, artistName: 'Picasso', date: '2023-10-02', status: 'En attente' },
-    { id: 3, artistName: 'Jean Marc', date: '2023-10-03', status: 'Validé' },
-    { id: 4, artistName: 'Van Gogh',  date: '2023-10-04', status: 'Refusé' }
-  ]
+const fetchAppointments = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/appointments', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Erreur lors de la récupération des données');
+      }
+  
+      const data = await response.json();
+  
+      if (data) {
+        const response = Object.values(data);
+        console.log(response)
 
-    
-    sortedAppointments.value = appointments.value
-        .filter(appointment => appointment.status === 'Validé' || appointment.status === 'En attente')
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
+        response.forEach((appointment) => {
+            if (appointment.userId === localStorage.getItem('user')) {
+                appointments.value.push(appointment)
+            }
+        })
 
-})
+        sortedAppointments.value = appointments.value
+            .filter(appointment => appointment.status === 'Validé' || appointment.status === 'En attente')
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des rendez-vous:', error);
+      appointments.value = [];
+    }
+  };
+
+onMounted(fetchAppointments)
 
 </script>
 

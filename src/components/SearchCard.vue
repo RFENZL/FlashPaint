@@ -2,31 +2,48 @@
     <div class="search-card">
       <h2>Nom : {{ artist.lastName }}</h2>
       <h2>Prénom : {{ artist.firstName }}</h2>
+      <button @click="openPopup">Prendre rendez-vous</button>
       <button @click="goToProfile">Voir le profil</button>
     </div>
+
+    <TakeAppointment
+      v-if="isPopupVisible"
+      @update-profile="updateProfile"
+      @close="closePopup"
+    />
   </template>
   
-  <script>
-  export default {
-    name: 'SearchCard',
-    props: {
-      artist: {
-        type: Object,
-        required: true,
-        default: () => ({
-          firstName: '',
-          lastName: '',
-          profileUrl: ''
-        })
-      }
-    },
-    methods: {
-      goToProfile() {
-        // Rediriger vers le profil de l'artiste
-        window.location.href = `/artists/${this.artist.email}`; // Utilisez un identifiant unique comme email
-      }
+  <script setup>
+  import TakeAppointment from './takeAppointment.vue';
+  import { ref } from 'vue';
+
+  const props = defineProps({
+    artist: {
+      type: Object,
+      required: true,
+      default: () => ({
+        firstName: '',
+        lastName: '',
+        artistId: '',
+        profileUrl: ''
+      })
     }
-  }
+  });
+
+  const isPopupVisible = ref(false);
+
+  const goToProfile = () => {
+    // Rediriger vers le profil de l'artiste
+    window.location.href = `/artists/${props.artist.email}`; // Utilisez un identifiant unique comme email
+  };
+
+  const openPopup = () => {
+    isPopupVisible.value = true;
+  };
+
+  const closePopup = () => {
+    isPopupVisible.value = false;
+  };
   </script>
   
   <style scoped>
