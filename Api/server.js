@@ -11,6 +11,9 @@ const { deleteCanvas } = require('./canvasRoute/deleteCanvas.js');
 const { getGallery } = require('./galleryRoute/gallery.js');
 const { updateGallery } = require('./galleryRoute/updateGallery.js');
 const { searchItems } = require('./searchRoute/searchItems.js');
+const { createAppointment } = require('./appointmentRoute/newAppointment.js');
+const { getAllAppointments } = require('./appointmentRoute/appointments.js');
+const { updateAppointment } = require('./appointmentRoute/updateAppointment.js');
 const path = require('path');
 const fs = require('fs');
 fastify.register(require('@fastify/multipart'));
@@ -210,6 +213,44 @@ fastify.get('/search', { preHandler: [fastify.authenticate] }, async (request, r
     reply.status(500).send({ error: 'Erreur lors de la recherche' });
   }
 });
+
+fastify.get('/appointments', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  try {
+    const appointments = await getAllAppointments();
+    reply.send(appointments);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des rendez-vous :', error);
+    reply.status(500).send({ error: 'Erreur lors de la récupération des rendez-vous' });
+  }
+});
+
+fastify.post('/newAppointment', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  const { userId, artistId, date } = request.body;
+
+  try {
+    const result = await createAppointment(userId, artistId, date);
+    reply.send(result);
+  } catch (error) {
+    console.error('Erreur lors de la création du rendez-vous :', error);
+    reply.status(500).send({ error: error.message });
+  }
+});
+
+fastify.put('/updateAppointment', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  const { id } = request.query;
+  const { status } = request.body;
+
+  try {
+    console.log(id, status);
+    const result = await updateAppointment(id, status);
+    return reply.send(result);
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du rendez-vous :', error);
+    return reply.status(500).send({ error: error.message });
+  }
+});
+
+
 
 const start = async () => {
   try {
