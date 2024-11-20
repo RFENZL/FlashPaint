@@ -2,10 +2,33 @@
     <div class="popup-overlay">
       <div class="popup">
         <h2>Prendre le rendez-vous</h2>
+        <div class="artistName"><h3> Artiste : <br> {{ artist.lastName }} {{ artist.firstName }}</h3></div>
         <form @submit.prevent="submitChanges">
+          <label for="date" style="text-align: center;"><h3>Date</h3></label>
+            <div style="display: flex; gap: 3%;">
+            <div style="width: 30%;">
+              <label for="year">Année</label>
+              <select id="year" v-model="selectedDate.year" required>
+                <option v-for="year in props.dateOptions.years" :key="year" :value="year">{{ year }}</option>
+              </select>
+            </div>
 
+            <div style="width: 30%;">
+              <label for="month">Mois</label>
+              <select id="month" v-model="selectedDate.month" required>
+              <option v-for="month in props.dateOptions.months" :key="month" :value="month">{{ month }}</option>
+              </select>
+            </div>
+
+            <div style="width: 30%;">
+              <label for="day">Jour</label>
+              <select id="day" v-model="selectedDate.day" required>
+              <option v-for="day in props.dateOptions.days" :key="day" :value="day">{{ day }}</option>
+              </select>
+            </div>
+            </div>
           <div class="actions">
-            <button type="submit">Valider</button>
+            <button type="submit" @click="submitAppointment">Valider</button>
             <button type="button" @click="closePopup">Annuler</button>
           </div>
         </form>
@@ -13,23 +36,55 @@
     </div>
   </template>
   
-  <script>
-  export default {
-    name: 'takeAppointment',
-    props: {
-      userData: {
-        type: Object,
-        required: true,
-      },
+  <script setup>
+  import { defineProps, defineEmits, ref } from 'vue';
+
+  const props = defineProps({
+    artist: {
+      type: Object,
+      required: true,
     },
-    methods: {
-      submitChanges() {
-        this.$emit('update-profile', this.formData);
-      },
-      closePopup() {
-        this.$emit('close');
-      },
+    dateOptions: {
+      type: Object,
+      required: true,
     },
+  });
+
+  const emit = defineEmits(['close']);
+
+  const selectedDate = ref({
+    year: '',
+    month: '',
+    day: '',
+  });
+
+  const submitAppointment = async () => {
+    const appointmentData = {
+      userId: localStorage.getItem('user'),
+      artistId: props.artist.artistId,
+      date: `${selectedDate.value.year}-${selectedDate.value.month}-${selectedDate.value.day}`,
+    };
+
+    const response = await fetch('http://localhost:3000/newAppointment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(appointmentData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la création du rendez-vous');
+    } else {
+      console.log('Rendez-vous créé avec succès');
+    }
+
+    emit('close');
+  };
+
+  const closePopup = () => {
+    emit('close');
   };
   </script>
   
@@ -95,6 +150,10 @@
   button[type="button"] {
     background-color: #ccc;
     color: black;
+  }
+
+  .artistName {
+    text-align: center;
   }
   </style>
   

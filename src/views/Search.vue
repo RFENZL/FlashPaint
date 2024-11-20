@@ -35,7 +35,7 @@
       }
   
       const data = await response.json();
-      console.log('Données récupérées:', data);
+      //console.log('Données récupérées:', data);
   
       if (data) {
         const users = Object.values(data);
