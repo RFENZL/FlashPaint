@@ -56,7 +56,7 @@ const fetchAppointments = async () => {
   
       if (data) {
         const response = Object.values(data);
-        console.log(response)
+        //console.log(response)
 
         response.forEach((appointment) => {
             if (appointment.userId === localStorage.getItem('user')) {

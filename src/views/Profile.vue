@@ -36,6 +36,13 @@
   import EditProfilePopup from '../components/ModifProfil.vue';
   import { ref, onMounted } from 'vue';
   
+  let props = defineProps({
+    userId: {
+      type: String,
+      default: () => ''
+    }
+  });
+
   let profilData = ref(null);
   let isAdmin = false;
   let isOwnProfile = false;
@@ -53,14 +60,13 @@
     profilData.value = updatedData; // Met à jour les données localement
     console.log('Profil mis à jour:', JSON.stringify(updatedData));
   
-    // Ici, ajoutez l'appel à l'API pour enregistrer les modifications
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('user')
     fetch(`http://localhost:3000/updateUser?id=${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(updatedData),
     })
@@ -82,7 +88,11 @@
   
   onMounted(async () => {
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('user');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdFromUrl = urlParams.get('id');
+    let userId = userIdFromUrl ? userIdFromUrl : localStorage.getItem('user');
+    
     const url = `http://localhost:3000/profil?id=${userId}`;
   
     try {
@@ -97,7 +107,7 @@
       profilData.value = data.user.user;
   
       isAdmin = profilData.value.userType === 'admin';
-      isOwnProfile = data.user.id === userId;
+      isOwnProfile = data.user.id === props.userId;
     } catch (error) {
       console.error('Error:', error);
       alert('Une erreur est survenue. Veuillez réessayer plus tard.');

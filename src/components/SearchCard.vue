@@ -64,7 +64,7 @@
 
   const goToProfile = () => {
     // Rediriger vers le profil de l'artiste
-    window.location.href = `/artists/${props.artist.email}`; // Utilisez un identifiant unique comme email
+    window.location.href = `/Profile?id=` + props.artist.artistId;
   };
 
   const openPopup = () => {
