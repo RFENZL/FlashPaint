@@ -26,7 +26,7 @@
                 <label for="role">Rôle</label>
                 <select id="role" v-model="role" required>
                     <option value="client">Client</option>
-                    <option value="artiste">Artiste</option>
+                    <option value="artist">Artiste</option>
                 </select>
             </div>
             <button type="submit">S'inscrire</button>
@@ -76,7 +76,7 @@ export default {
                     } else {
                         console.log('Erreur lors de l\'inscription: ' + data.message);
                     }
-                    this.$router.push('/');
+                    this.$router.push('/LoginRegister');
                 })
                 .catch(error => {
                     console.error('Error:', error);

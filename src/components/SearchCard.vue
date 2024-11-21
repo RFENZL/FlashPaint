@@ -39,7 +39,7 @@
       })
     }
   });
-
+  console.log(props.artist);
   const getArtistId = async () => {
     const response = await fetch('http://localhost:3000/users', {
       method: 'GET',

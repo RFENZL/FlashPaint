@@ -64,7 +64,7 @@
       artistId: props.artist.artistId,
       date: `${selectedDate.value.year}-${selectedDate.value.month}-${selectedDate.value.day}`,
     };
-
+    console.log(appointmentData);
     const response = await fetch('http://localhost:3000/newAppointment', {
       method: 'POST',
       headers: {
