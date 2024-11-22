@@ -6,13 +6,13 @@
         <form @submit.prevent="submitChanges">
           <label for="date" style="text-align: center;"><h3>Date</h3></label>
             <div style="display: flex; gap: 3%;">
-            <div style="width: 30%;">
-              <label for="year">Année</label>
-              <select id="year" v-model="selectedDate.year" required>
-                <option v-for="year in props.dateOptions.years" :key="year" :value="year">{{ year }}</option>
+              <div style="width: 30%;">
+              <label for="day">Jour</label>
+              <select id="day" v-model="selectedDate.day" required>
+              <option v-for="day in props.dateOptions.days" :key="day" :value="day">{{ day }}</option>
               </select>
             </div>
-
+            
             <div style="width: 30%;">
               <label for="month">Mois</label>
               <select id="month" v-model="selectedDate.month" required>
@@ -21,11 +21,12 @@
             </div>
 
             <div style="width: 30%;">
-              <label for="day">Jour</label>
-              <select id="day" v-model="selectedDate.day" required>
-              <option v-for="day in props.dateOptions.days" :key="day" :value="day">{{ day }}</option>
+              <label for="year">Année</label>
+              <select id="year" v-model="selectedDate.year" required>
+                <option v-for="year in props.dateOptions.years" :key="year" :value="year">{{ year }}</option>
               </select>
             </div>
+
             </div>
           <div class="actions">
             <button type="submit" @click="submitAppointment">Valider</button>

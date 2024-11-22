@@ -76,7 +76,7 @@ export default {
                     } else {
                         console.log('Erreur lors de l\'inscription: ' + data.message);
                     }
-                    this.$router.push('/LoginRegister');
+                    this.$router.push('/');
                 })
                 .catch(error => {
                     console.error('Error:', error);
