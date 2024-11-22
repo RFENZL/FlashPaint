@@ -11,6 +11,13 @@ npm install
 
 # pnpm
 pnpm install
+
+#Installation de Fastify
+npm i fastify
+
+#Installation de FireBase
+npm install firebase-admin firebase
+
 ```
 
 ### Compiles and hot-reloads for development
